@@ -1,19 +1,32 @@
-FROM runpod/pytorch:2.1.0-py3.10-cuda12.1.0
+FROM nvidia/cuda:12.1.1-cudnn8-devel-ubuntu22.04
 
 # Set the working directory
 WORKDIR /workspace
 
-# Install core dependencies
+# Install required dependencies
 RUN apt-get update && apt-get install -y \
-    git wget unzip && \
-    pip install --upgrade pip
+    python3.10 \
+    python3.10-venv \
+    python3.10-dev \
+    curl \
+    git \
+    wget \
+    zip \
+    unzip \
+    build-essential \
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender-dev \
+    && apt-get clean
 
-# Copy local files into the container
-COPY . /workspace
+# Set python3.10 as default
+RUN update-alternatives --install /usr/bin/python python /usr/bin/python3.10 1
 
-# Install Python dependencies
-RUN pip install -r requirements.txt
+# Install pip and venv
+RUN curl -sS https://bootstrap.pypa.io/get-pip.py | python && \
+    python -m pip install --upgrade pip
 
-# Default command to start training
-CMD ["python", "train_lora.py"]
-
+# Optional: Clone or copy your LoRA training script and install dependencies here
+# COPY . /workspace
+# RUN pip install -r requirements.txt
